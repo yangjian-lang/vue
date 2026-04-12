@@ -34,7 +34,8 @@ router.get('/admin/acl/user/:page/:limit?',verifyToken,async (req,res,next)=>{
 //添加一个新的用户
 router.post('/admin/acl/user/save',verifyToken,async (req,res,next)=>{
     try {
-        const {username,name,password}=req.body
+        const {username,name,password}=req.body.data || req.body
+        console.log('添加用户参数:', username, name, password)
         await reqSaveUser(username,name,password)
         res.success(null)
     }catch (err){
