@@ -70,7 +70,8 @@ const reqSaveUser=async (username,name,password)=>{
     try {
         connection = await getConnection()
         const user_id = Date.now()
-        const [result]=await connection.query('insert into user (user_id,username,name,password) values (?,?,?,?)',[user_id,username,name,password])
+        const now = new Date()
+        const [result]=await connection.query('insert into user (user_id,username,name,password,create_time,update_time) values (?,?,?,?,?,?)',[user_id,username,name,password,now,now])
         return result
     } finally {
         if (connection) {
@@ -84,7 +85,8 @@ const reqUpdateUser=async (id,username,name)=>{
     try {
         connection = await getConnection()
         console.log('更新用户参数:', id, username, name)
-        const result= await connection.query('update user set username=?,name=? where user_id=?',[username,name,id])
+        const now = new Date()
+        const result= await connection.query('update user set username=?,name=?,update_time=? where user_id=?',[username,name,now,id])
         console.log('更新用户结果:', result)
         return result
     } finally {
