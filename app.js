@@ -1,0 +1,64 @@
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
+
+// 引入路由
+const authRouter = require('./Control/auth');
+const trademarkRouter=require('./Control/productControl/trademarkControl')
+const arrtRouter=require('./Control/productControl/attrControl')
+const userRouter=require('./Control/aclControl/userControl')
+const roleRouter=require('./Control/aclControl/roleControl')
+const permissionRouter=require('./Control/aclControl/permissionControl')
+const skuControlRouter=require('./Control/productControl/skuControl')
+const spuControlRouter=require('./Control/productControl/spuControl')
+const app = express();
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use(logger('dev'));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+
+// 统一响应格式中间件
+const responseMiddleware = require('./utils/response');
+app.use(responseMiddleware);
+
+app.use(express.static(path.join(__dirname, 'public')));
+  // 添加 static 目录的静态文件访问
+  app.use('/static', express.static(path.join(__dirname, 'static')));
+  // 添加兼容路由，处理旧的/api/static路径
+  app.use('/api/static', express.static(path.join(__dirname, 'static')));
+
+// 挂载路由
+app.use('/api', authRouter);
+app.use('/api', trademarkRouter)
+app.use('/api', arrtRouter)
+app.use('/api', userRouter)
+app.use('/api', roleRouter)
+app.use('/api', permissionRouter)
+app.use('/api', skuControlRouter)
+app.use('/api', spuControlRouter)
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
