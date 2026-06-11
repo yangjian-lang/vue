@@ -1,4 +1,5 @@
 const getConnection = require('../../dataBase/db')
+const { CHINA_NOW } = require('../../utils/chinaTime')
 const reqAllRole = async (page, limit, roleName) => {
     let connection = null
     try {
@@ -53,7 +54,7 @@ const saveRole = async (params) => {
 
         // 2. 插入新角色
         await connection.query(
-            `INSERT INTO role (role_id, role_name, remark) VALUES (?, ?, ?)`,
+            `INSERT INTO role (role_id, role_name, remark, create_time, update_time) VALUES (?, ?, ?, ${CHINA_NOW}, ${CHINA_NOW})`,
             [id, roleName, remark]
         )
     } finally {
@@ -72,7 +73,7 @@ async function updateRole(params) {
 
         const sql = `
             UPDATE role
-            SET role_name = ?, remark = ?
+            SET role_name = ?, remark = ?, update_time = ${CHINA_NOW}
             WHERE role_id = ?
         `
 
