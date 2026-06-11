@@ -1,5 +1,5 @@
 const getConnection = require('../../dataBase/db')
-const { CHINA_NOW } = require('../../utils/chinaTime')
+const { getChinaTimeString } = require('../../utils/chinaTime')
 
 // 查询所有菜单（树形结构）
 const getMenuList = async () => {
@@ -8,8 +8,8 @@ const getMenuList = async () => {
         connection = await getConnection()
         const [rows] = await connection.query(
             `SELECT menu_id, name, pid, code, to_code, type, status, level,
-                    DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time,
-                    DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') as update_time
+                    DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as createTime,
+                    DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') as updateTime
              FROM menu`
         )
 
@@ -23,8 +23,8 @@ const getMenuList = async () => {
             type: row.type,
             status: row.status || '',
             level: row.level,
-            createTime: row.create_time,
-            updateTime: row.update_time,
+            createTime: row.createTime,
+            updateTime: row.updateTime,
             select: false,
             children: null
         }))
@@ -76,10 +76,11 @@ const permissionSave = async (params) => {
         }
 
         // 2. 插入新菜单/权限
+        const now = getChinaTimeString()
         await connection.query(
             `INSERT INTO menu(menu_id, name, pid, code, to_code, type, status, level, create_time, update_time)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ${CHINA_NOW}, ${CHINA_NOW})`,
-            [menuId, name, pid, code, '', type, '0', level]
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [menuId, name, pid, code, '', type, '0', level, now, now]
         )
     } finally {
         if (connection) {
@@ -94,9 +95,10 @@ const permissionUpdate = async (params) => {
         connection = await getConnection()
         const { id, name, pid, code, level } = params
 
+        const now = getChinaTimeString()
         await connection.query(
-            `UPDATE menu SET name = ?, pid = ?, code = ?, level = ?, update_time = ${CHINA_NOW} WHERE menu_id = ?`,
-            [name, pid, code, level, id]
+            `UPDATE menu SET name = ?, pid = ?, code = ?, level = ?, update_time = ? WHERE menu_id = ?`,
+            [name, pid, code, level, now, id]
         )
     } finally {
         if (connection) {

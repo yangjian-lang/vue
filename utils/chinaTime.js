@@ -1,4 +1,6 @@
-// 在 SQL 中显式计算北京时间，不依赖 Node/数据库服务器时区
-const CHINA_NOW = 'DATE_ADD(UTC_TIMESTAMP(), INTERVAL 8 HOUR)'
+// 生成北京时间字符串，写入数据库时使用参数绑定，避免 SQL 表达式与时区叠加
+function getChinaTimeString() {
+    return new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Shanghai' })
+}
 
-module.exports = { CHINA_NOW }
+module.exports = { getChinaTimeString }
