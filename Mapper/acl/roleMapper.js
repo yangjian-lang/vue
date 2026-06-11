@@ -70,13 +70,16 @@ async function updateRole(params) {
         console.log('更新角色接收参数:', params)
         const { id, roleName, remark, updateTime } = params
 
+        const now = new Date()
+        const nowStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+
         const sql = `
             UPDATE role
             SET role_name = ?, remark = ?, update_time = ?
             WHERE role_id = ?
         `
 
-        const res = await connection.query(sql, [roleName, remark, updateTime || new Date(), id])
+        const res = await connection.query(sql, [roleName, remark, updateTime || nowStr, id])
         console.log('更新角色结果:', res)
         return res
     } finally {
