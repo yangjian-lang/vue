@@ -56,6 +56,7 @@ const staticOptions = {
 app.use(express.static(path.join(__dirname, 'public'), staticOptions));
 app.use('/static', express.static(path.join(__dirname, 'static'), staticOptions));
 app.use('/api/static', express.static(path.join(__dirname, 'static'), staticOptions));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), staticOptions));
 
 // 挂载路由
 app.use('/api', authRouter);
