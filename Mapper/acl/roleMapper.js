@@ -1,5 +1,5 @@
 const getConnection = require('../../dataBase/db')
-const { getChinaTimeString } = require('../../utils/chinaTime')
+const { DB_NOW } = require('../../utils/chinaTime')
 const reqAllRole = async (page, limit, roleName) => {
     let connection = null
     try {
@@ -53,10 +53,9 @@ const saveRole = async (params) => {
         }
 
         // 2. 插入新角色
-        const now = getChinaTimeString()
         await connection.query(
-            `INSERT INTO role (role_id, role_name, remark, create_time, update_time) VALUES (?, ?, ?, ?, ?)`,
-            [id, roleName, remark, now, now]
+            `INSERT INTO role (role_id, role_name, remark, create_time, update_time) VALUES (?, ?, ?, ${DB_NOW}, ${DB_NOW})`,
+            [id, roleName, remark]
         )
     } finally {
         if (connection) {
@@ -72,14 +71,13 @@ async function updateRole(params) {
         console.log('更新角色接收参数:', params)
         const { id, roleName, remark } = params
 
-        const now = getChinaTimeString()
         const sql = `
             UPDATE role
-            SET role_name = ?, remark = ?, update_time = ?
+            SET role_name = ?, remark = ?, update_time = ${DB_NOW}
             WHERE role_id = ?
         `
 
-        const res = await connection.query(sql, [roleName, remark, now, id])
+        const res = await connection.query(sql, [roleName, remark, id])
         console.log('更新角色结果:', res)
         return res
     } finally {

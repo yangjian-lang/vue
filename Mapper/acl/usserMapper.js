@@ -1,5 +1,5 @@
 const getConnection = require('../../dataBase/db')
-const { getChinaTimeString } = require('../../utils/chinaTime')
+const { DB_NOW } = require('../../utils/chinaTime')
 //获取全部已有用户
 const reqAllUser=async (page=1,limit=5,username)=>{
     let connection = null
@@ -53,10 +53,9 @@ const reqSaveUser=async (username,name,password)=>{
     try {
         connection = await getConnection()
         const user_id = Date.now()
-        const now = getChinaTimeString()
         const [result]=await connection.query(
-            `insert into user (user_id,username,name,password,create_time,update_time) values (?,?,?,?,?,?)`,
-            [user_id,username,name,password,now,now]
+            `insert into user (user_id,username,name,password,create_time,update_time) values (?,?,?,?,${DB_NOW},${DB_NOW})`,
+            [user_id,username,name,password]
         )
         return result
     } finally {
@@ -71,10 +70,9 @@ const reqUpdateUser=async (id,username,name)=>{
     try {
         connection = await getConnection()
         console.log('更新用户参数:', id, username, name)
-        const now = getChinaTimeString()
         const result= await connection.query(
-            `update user set username=?,name=?,update_time=? where user_id=?`,
-            [username,name,now,id]
+            `update user set username=?,name=?,update_time=${DB_NOW} where user_id=?`,
+            [username,name,id]
         )
         console.log('更新用户结果:', result)
         return result

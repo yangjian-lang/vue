@@ -1,5 +1,5 @@
 const getConnection = require('../../dataBase/db')
-const { getChinaTimeString } = require('../../utils/chinaTime')
+const { DB_NOW } = require('../../utils/chinaTime')
 
 // 查询所有菜单（树形结构）
 const getMenuList = async () => {
@@ -76,11 +76,10 @@ const permissionSave = async (params) => {
         }
 
         // 2. 插入新菜单/权限
-        const now = getChinaTimeString()
         await connection.query(
             `INSERT INTO menu(menu_id, name, pid, code, to_code, type, status, level, create_time, update_time)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [menuId, name, pid, code, '', type, '0', level, now, now]
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ${DB_NOW}, ${DB_NOW})`,
+            [menuId, name, pid, code, '', type, '0', level]
         )
     } finally {
         if (connection) {
@@ -95,10 +94,9 @@ const permissionUpdate = async (params) => {
         connection = await getConnection()
         const { id, name, pid, code, level } = params
 
-        const now = getChinaTimeString()
         await connection.query(
-            `UPDATE menu SET name = ?, pid = ?, code = ?, level = ?, update_time = ? WHERE menu_id = ?`,
-            [name, pid, code, level, now, id]
+            `UPDATE menu SET name = ?, pid = ?, code = ?, level = ?, update_time = ${DB_NOW} WHERE menu_id = ?`,
+            [name, pid, code, level, id]
         )
     } finally {
         if (connection) {
