@@ -1,0 +1,40 @@
+# 依赖包
+node_modules/
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 日志文件
+logs
+*.log
+
+# 编译产物
+dist/
+build/
+
+# 临时文件
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# IDE配置文件
+.vscode/
+.idea/
+
+# 测试文件
+coverage/
+.nyc_output/
+
+# 缓存目录
+.cache/
+.turbo/
+
+# 前端打包文件
+# public/assets/
+# public/uploads/
