@@ -73,10 +73,7 @@ const permissionSave = async (params) => {
         connection = await getConnection()
         const { name, pid, code, type, level } = params
         const menuId = Date.now()
-
         const now = new Date()
-        const hours = now.getHours() + 8
-        const nowStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
 
         // 1. 检查菜单名称是否已存在
         const [countRows] = await connection.query(
@@ -92,7 +89,7 @@ const permissionSave = async (params) => {
         await connection.query(
             `INSERT INTO menu(menu_id, name, pid, code, to_code, type, status, level, create_time, update_time)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [menuId, name, pid, code, '', type, '0', level, nowStr, nowStr]
+            [menuId, name, pid, code, '', type, '0', level, now, now]
         )
     } finally {
         if (connection) {
@@ -107,12 +104,10 @@ const permissionUpdate = async (params) => {
         connection = await getConnection()
         const { id, name, pid, code, level } = params
         const now = new Date()
-        const hours = now.getHours() + 8
-        const nowStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
 
         await connection.query(
             `UPDATE menu SET name = ?, pid = ?, code = ?, level = ?, update_time = ? WHERE menu_id = ?`,
-            [name, pid, code, level, nowStr, id]
+            [name, pid, code, level, now, id]
         )
     } finally {
         if (connection) {

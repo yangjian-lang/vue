@@ -71,9 +71,7 @@ const reqSaveUser=async (username,name,password)=>{
         connection = await getConnection()
         const user_id = Date.now()
         const now = new Date()
-        const hours = now.getHours() + 8
-        const nowStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
-        const [result]=await connection.query('insert into user (user_id,username,name,password,create_time,update_time) values (?,?,?,?,?,?)',[user_id,username,name,password,nowStr,nowStr])
+        const [result]=await connection.query('insert into user (user_id,username,name,password,create_time,update_time) values (?,?,?,?,?,?)',[user_id,username,name,password,now,now])
         return result
     } finally {
         if (connection) {
@@ -88,9 +86,7 @@ const reqUpdateUser=async (id,username,name)=>{
         connection = await getConnection()
         console.log('更新用户参数:', id, username, name)
         const now = new Date()
-        const hours = now.getHours() + 8
-        const nowStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
-        const result= await connection.query('update user set username=?,name=?,update_time=? where user_id=?',[username,name,nowStr,id])
+        const result= await connection.query('update user set username=?,name=?,update_time=? where user_id=?',[username,name,now,id])
         console.log('更新用户结果:', result)
         return result
     } finally {
