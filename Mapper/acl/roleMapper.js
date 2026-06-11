@@ -68,15 +68,15 @@ async function updateRole(params) {
     try {
         connection = await getConnection()
         console.log('更新角色接收参数:', params)
-        const { id, roleName, remark, updateTime } = params
+        const { id, roleName, remark } = params
 
         const sql = `
             UPDATE role
-            SET role_name = ?, remark = ?, update_time = ?
+            SET role_name = ?, remark = ?
             WHERE role_id = ?
         `
 
-        const res = await connection.query(sql, [roleName, remark, updateTime || new Date(), id])
+        const res = await connection.query(sql, [roleName, remark, id])
         console.log('更新角色结果:', res)
         return res
     } finally {

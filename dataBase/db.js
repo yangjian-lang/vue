@@ -27,6 +27,10 @@ console.log('正在测试数据库连接...');
 module.exports = async () => {
     try {
         const connection = await pool.getConnection()
+        if (!connection._timezoneSet) {
+            await connection.query("SET time_zone = '+08:00'")
+            connection._timezoneSet = true
+        }
         return connection
     } catch (error) {
         console.error('获取数据库连接失败:', error)

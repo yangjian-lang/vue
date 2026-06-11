@@ -1,16 +1,4 @@
 const getConnection = require('../../dataBase/db')
-// 格式化日期时间
-const formatDate = (date) => {
-    if (!date) return ''
-    const d = new Date(date)
-    const year = d.getFullYear()
-    const month = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    const hours = String(d.getHours()).padStart(2, '0')
-    const minutes = String(d.getMinutes()).padStart(2, '0')
-    const seconds = String(d.getSeconds()).padStart(2, '0')
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-}
 
 // 查询所有菜单（树形结构）
 const getMenuList = async () => {
@@ -18,7 +6,9 @@ const getMenuList = async () => {
     try {
         connection = await getConnection()
         const [rows] = await connection.query(
-            `SELECT menu_id, name, pid, code, to_code, type, status, level, update_time, create_time
+            `SELECT menu_id, name, pid, code, to_code, type, status, level,
+                    DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as create_time,
+                    DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') as update_time
              FROM menu`
         )
 
@@ -32,8 +22,8 @@ const getMenuList = async () => {
             type: row.type,
             status: row.status || '',
             level: row.level,
-            createTime: formatDate(row.create_time),
-            updateTime: formatDate(row.update_time),
+            createTime: row.create_time,
+            updateTime: row.update_time,
             select: false,
             children: null
         }))
@@ -73,7 +63,6 @@ const permissionSave = async (params) => {
         connection = await getConnection()
         const { name, pid, code, type, level } = params
         const menuId = Date.now()
-        const now = new Date()
 
         // 1. 检查菜单名称是否已存在
         const [countRows] = await connection.query(
@@ -87,9 +76,9 @@ const permissionSave = async (params) => {
 
         // 2. 插入新菜单/权限
         await connection.query(
-            `INSERT INTO menu(menu_id, name, pid, code, to_code, type, status, level, create_time, update_time)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [menuId, name, pid, code, '', type, '0', level, now, now]
+            `INSERT INTO menu(menu_id, name, pid, code, to_code, type, status, level)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [menuId, name, pid, code, '', type, '0', level]
         )
     } finally {
         if (connection) {
@@ -103,11 +92,10 @@ const permissionUpdate = async (params) => {
     try {
         connection = await getConnection()
         const { id, name, pid, code, level } = params
-        const now = new Date()
 
         await connection.query(
-            `UPDATE menu SET name = ?, pid = ?, code = ?, level = ?, update_time = ? WHERE menu_id = ?`,
-            [name, pid, code, level, now, id]
+            `UPDATE menu SET name = ?, pid = ?, code = ?, level = ? WHERE menu_id = ?`,
+            [name, pid, code, level, id]
         )
     } finally {
         if (connection) {

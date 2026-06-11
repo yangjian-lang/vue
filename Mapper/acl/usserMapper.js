@@ -25,32 +25,14 @@ const reqAllUser=async (page=1,limit=5,username)=>{
                                     u.password,
                                     u.name,
                                     IFNULL(GROUP_CONCAT(DISTINCT r.role_name SEPARATOR ','), '') as roleName,
-                                    u.create_time as createTime,
-                                    u.update_time as updateTime
+                                    DATE_FORMAT(u.create_time, '%Y-%m-%d %H:%i:%s') as createTime,
+                                    DATE_FORMAT(u.update_time, '%Y-%m-%d %H:%i:%s') as updateTime
                                     FROM user u
                                     LEFT JOIN user_role ur ON u.user_id = ur.user_id
                                     LEFT JOIN role r ON ur.role_id = r.role_id
                                     ${whereSql}
                                     GROUP BY u.user_id
                                     LIMIT ? OFFSET ?`, [...params, parseInt(limit), parseInt(offset)])
-
-        // 格式化日期时间
-        const formatDate = (date) => {
-            if (!date) return ''
-            const d = new Date(date)
-            const year = d.getFullYear()
-            const month = String(d.getMonth() + 1).padStart(2, '0')
-            const day = String(d.getDate()).padStart(2, '0')
-            const hours = String(d.getHours()).padStart(2, '0')
-            const minutes = String(d.getMinutes()).padStart(2, '0')
-            const seconds = String(d.getSeconds()).padStart(2, '0')
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-        }
-
-        rows.forEach(row => {
-            row.createTime = formatDate(row.createTime)
-            row.updateTime = formatDate(row.updateTime)
-        })
 
         return {
             data: rows,
@@ -70,8 +52,7 @@ const reqSaveUser=async (username,name,password)=>{
     try {
         connection = await getConnection()
         const user_id = Date.now()
-        const now = new Date()
-        const [result]=await connection.query('insert into user (user_id,username,name,password,create_time,update_time) values (?,?,?,?,?,?)',[user_id,username,name,password,now,now])
+        const [result]=await connection.query('insert into user (user_id,username,name,password) values (?,?,?,?)',[user_id,username,name,password])
         return result
     } finally {
         if (connection) {
@@ -85,8 +66,7 @@ const reqUpdateUser=async (id,username,name)=>{
     try {
         connection = await getConnection()
         console.log('更新用户参数:', id, username, name)
-        const now = new Date()
-        const result= await connection.query('update user set username=?,name=?,update_time=? where user_id=?',[username,name,now,id])
+        const result= await connection.query('update user set username=?,name=? where user_id=?',[username,name,id])
         console.log('更新用户结果:', result)
         return result
     } finally {
