@@ -15,7 +15,6 @@ const roleRouter=require('./Control/aclControl/roleControl')
 const permissionRouter=require('./Control/aclControl/permissionControl')
 const skuControlRouter=require('./Control/productControl/skuControl')
 const spuControlRouter=require('./Control/productControl/spuControl')
-const imageRouter = require('./Control/imageControl')
 const app = express();
 
 // view engine setup
@@ -85,7 +84,6 @@ app.use('/api', roleRouter)
 app.use('/api', permissionRouter)
 app.use('/api', skuControlRouter)
 app.use('/api', spuControlRouter)
-app.use('/api/image', imageRouter)
 
 // 前端 SPA 路由支持 - 访问非 API 路径时返回前端 index.html
 app.use((req, res, next) => {
