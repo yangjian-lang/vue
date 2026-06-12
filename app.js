@@ -15,12 +15,18 @@ const roleRouter=require('./Control/aclControl/roleControl')
 const permissionRouter=require('./Control/aclControl/permissionControl')
 const skuControlRouter=require('./Control/productControl/skuControl')
 const spuControlRouter=require('./Control/productControl/spuControl')
+const imageRouter = require('./Control/imageControl')
 const app = express();
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
+// 只在开发环境记录日志
+if (process.env.NODE_ENV !== 'production') {
+  app.use(logger('dev'));
+}
+
 app.use(cors());
 app.use(compression({
   threshold: 0,
@@ -31,8 +37,8 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
 
 const responseMiddleware = require('./utils/response');
@@ -40,15 +46,27 @@ app.use(responseMiddleware);
 
 const staticOptions = {
   maxAge: '30d',
-  etag: false,
-  lastModified: false,
+  etag: true,
+  lastModified: true,
   setHeaders: (res, path) => {
+    // 添加 CORS 头
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // 设置正确的 Content-Type
     if (path.endsWith('.webp')) {
       res.setHeader('Content-Type', 'image/webp');
     } else if (path.endsWith('.png')) {
       res.setHeader('Content-Type', 'image/png');
     } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
       res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
     }
   }
 };
@@ -67,6 +85,7 @@ app.use('/api', roleRouter)
 app.use('/api', permissionRouter)
 app.use('/api', skuControlRouter)
 app.use('/api', spuControlRouter)
+app.use('/api/image', imageRouter)
 
 // 前端 SPA 路由支持 - 访问非 API 路径时返回前端 index.html
 app.use((req, res, next) => {
