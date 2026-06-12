@@ -88,6 +88,7 @@ app.use('/api', spuControlRouter)
 // 前端 SPA 路由支持 - 访问非 API 路径时返回前端 index.html
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api')) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   } else {
     next();
